@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Wortise Fullstack Challenge
 
-## Getting Started
+Fullstack CMS application built as part of the **Wortise technical challenge**.  
+The project is implemented using **Next.js App Router** with a fully type-safe backend powered by **tRPC**, **MongoDB (native driver)**, and **BetterAuth**.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Tech Stack
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Core
+- **Next.js** (App Router)
+- **TypeScript**
+- **tRPC** (end-to-end type safety)
+- **MongoDB** (native driver)
+- **BetterAuth** (authentication)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Frontend
+- **React**
+- **Tailwind CSS**
+- **TanStack Query**
+- **React Hook Form**
+- **Zod**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Tooling
+- **Docker** (MongoDB for local development)
+- **ESLint**
+- **Prettier** (optional)
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🧱 Architecture Overview
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This project follows a **fullstack monolith architecture** using Next.js:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Frontend** and **Backend** live in the same codebase
+- Backend logic is implemented via **tRPC**, not REST
+- MongoDB access uses the **native driver**
+- Authentication is centralized via **BetterAuth**
+- Strong typing is enforced end-to-end using **TypeScript + Zod**
 
-## Deploy on Vercel
+### High-level structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```txt
+src/
+├── app/            # Next.js App Router (UI + API routes)
+├── server/         # Backend logic (db, auth, trpc, schemas)
+├── utils/          # Shared utilities (tRPC client)
