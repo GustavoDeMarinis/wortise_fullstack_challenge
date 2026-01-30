@@ -1,13 +1,13 @@
 import { getDb } from "@/server/db";
-import type { NextRequest } from "next/server";
+import { getServerSession } from "@/server/auth/session";
 
-export async function createContext(opts: { req: NextRequest }) {
+export async function createContext() {
   const db = await getDb();
+  const session = await getServerSession();
 
   return {
     db,
-    // user will be added here when BetterAuth is configured
-    user: null as null | { id: string; email: string },
+    user: session?.user ?? null,
   };
 }
 

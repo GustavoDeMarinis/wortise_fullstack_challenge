@@ -1,6 +1,11 @@
 import "./globals.css";
 import { Providers } from "./providers";
 
+export const metadata = {
+  title: "Wortise CMS",
+  description: "Fullstack CMS Challenge",
+};
+
 export default function RootLayout({
   children,
 }: {
