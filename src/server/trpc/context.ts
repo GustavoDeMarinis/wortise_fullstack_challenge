@@ -7,6 +7,7 @@ export async function createContext() {
 
   return {
     db,
+    session,
     user: session?.user ?? null,
   };
 }
