@@ -84,7 +84,7 @@ export async function updateArticle(
     { returnDocument: "after" }
   );
 
-  return result?.value ? mapArticle(result.value) : null;
+  return result ? mapArticle(result) : null;
 }
 
 

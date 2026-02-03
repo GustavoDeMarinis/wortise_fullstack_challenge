@@ -49,19 +49,6 @@ export default function EditArticlePage() {
         );
     };
 
-    const onDelete = () => {
-        if (confirm("Are you sure you want to delete this article?")) {
-            deleteArticle.mutate(
-                { id: articleId },
-                {
-                    onSuccess: () => {
-                        alert("Article deleted successfully");
-                        router.push("/articles");
-                    },
-                }
-            );
-        }
-    };
     const handleDelete = () => {
         const confirmed = confirm(
             "Are you sure you want to delete this article? This action cannot be undone."
