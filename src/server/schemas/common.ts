@@ -6,3 +6,7 @@ export const paginationSchema = z.object({
   page: z.number().int().min(1).default(1),
   limit: z.number().int().min(1).max(50).default(10),
 });
+
+export const searchQuerySchema = z.object({
+  q: z.string().trim().min(1).optional(),
+})

@@ -14,6 +14,8 @@ import {
   updateArticle,
   softDeleteArticle,
 } from "@/server/repositories/article.repository";
+import { searchQuerySchema } from "@/server/schemas";
+import { searchArticles } from "@/server/queries/article.search";
 
 const create = protectedProcedure
   .input(createArticleSchema)
@@ -40,7 +42,7 @@ const getById = publicProcedure
     return article;
   });
 
-  const list = publicProcedure.query(async () => {
+const list = publicProcedure.query(async () => {
   return listArticles();
 });
 
@@ -115,10 +117,16 @@ const remove = protectedProcedure
     return { success: true };
   });
 
-  export const articleRouter = router({
+const search = publicProcedure
+  .input(searchQuerySchema)
+  .query(async ({ input }) => {
+    return searchArticles(input.q);
+  });
+export const articleRouter = router({
   create,
   getById,
   list,
   update,
   delete: remove,
+  search,
 });
