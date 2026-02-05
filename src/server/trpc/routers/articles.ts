@@ -13,9 +13,11 @@ import {
   listArticles,
   updateArticle,
   softDeleteArticle,
+  listArticlesPaginated,
 } from "@/server/repositories/article.repository";
-import { searchQuerySchema } from "@/server/schemas";
-import { searchArticles } from "@/server/queries/article.search";
+import { paginationSchema, searchQuerySchema } from "@/server/schemas";
+import { searchArticles, searchArticlesPaginated } from "@/server/queries/article.search";
+import z from "zod";
 
 const create = protectedProcedure
   .input(createArticleSchema)
@@ -122,6 +124,23 @@ const search = publicProcedure
   .query(async ({ input }) => {
     return searchArticles(input.q);
   });
+
+const listPaginated = publicProcedure
+  .input(paginationSchema.optional())
+  .query(({ input }) => {
+    return listArticlesPaginated(input);
+  });
+
+const searchPaginated = publicProcedure
+  .input(
+    paginationSchema.extend({
+      q: z.string().optional(),
+    })
+  )
+  .query(({ input }) => {
+    return searchArticlesPaginated(input.q, input);
+  })
+
 export const articleRouter = router({
   create,
   getById,
@@ -129,4 +148,6 @@ export const articleRouter = router({
   update,
   delete: remove,
   search,
+  listPaginated,
+  searchPaginated,
 });
