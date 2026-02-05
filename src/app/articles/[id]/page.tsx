@@ -2,6 +2,8 @@ import { api } from "@/server/trpc/server";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getServerSession } from "@/server/auth/session";
+import type { Article } from "@/server/schemas/article.schema";
+import { revalidatePath } from "next/cache";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -10,27 +12,31 @@ type Props = {
 export default async function ArticleDetailPage({ params }: Props) {
   const { id } = await params;
 
-  const [article, session] = await Promise.all([
-    api.article.getById({ id }),
-    getServerSession(),
-  ]);
+  let article: Article;
 
-  if (!article) {
+  try {
+    article = await api.article.getById({ id });
+  } catch {
     notFound();
   }
 
+  const session = await getServerSession();
+
   const canEdit =
-    session && article.authorId === session.user.id;
+    session !== null && article.authorId === session.user.id;
 
   async function deleteArticle() {
     "use server";
     await api.article.delete({ id: article.id });
+
+    revalidatePath(`/articles/${article.id}`);
+    revalidatePath("/articles");
+
     redirect("/articles");
   }
 
   return (
     <main className="max-w-2xl mx-auto px-4 py-8">
-      {/* Back link */}
       <Link
         href="/articles"
         className="text-sm text-gray-500 hover:underline mb-4 inline-block"
@@ -38,7 +44,6 @@ export default async function ArticleDetailPage({ params }: Props) {
         ← Back to articles
       </Link>
 
-      {/* Header */}
       <header className="mb-6">
         <h1 className="text-3xl font-bold mb-2">
           {article.title}
@@ -50,19 +55,16 @@ export default async function ArticleDetailPage({ params }: Props) {
         </p>
       </header>
 
-      {/* Cover */}
       <img
         src={article.coverImageUrl}
         alt=""
         className="w-full rounded-lg mb-6"
       />
 
-      {/* Content */}
       <article className="whitespace-pre-line leading-relaxed mb-8">
         {article.content}
       </article>
 
-      {/* Actions (author only) */}
       {canEdit && (
         <div className="flex gap-3">
           <Link

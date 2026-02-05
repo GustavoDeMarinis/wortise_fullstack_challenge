@@ -1,47 +1,83 @@
 # Wortise Fullstack Challenge
 
-Fullstack CMS application built as part of the **Wortise technical challenge**.  
-The project is implemented using **Next.js App Router** with a fully type-safe backend powered by **tRPC**, **MongoDB (native driver)**, and **BetterAuth**.
-
----
+A modern Article Management System built with the latest Next.js stack, demonstrating clean architecture, type safety, and server-first data fetching.
 
 ## 🚀 Tech Stack
 
-### Core
-- **Next.js** (App Router)
-- **TypeScript**
-- **tRPC** (end-to-end type safety)
-- **MongoDB** (native driver)
-- **BetterAuth** (authentication)
+- **Framework:** [Next.js 16](https://nextjs.org/) (App Router)
+- **Language:** TypeScript
+- **API:** [tRPC v11](https://trpc.io/) (Server Actions & Client Hooks)
+- **Database:** [MongoDB](https://www.mongodb.com/) (Native Driver)
+- **Validation:** [Zod](https://zod.dev/)
+- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
+- **Auth:** [Better Auth](https://better-auth.com/)
+- **State/Forms:** React Hook Form
 
-### Frontend
-- **React**
-- **Tailwind CSS**
-- **TanStack Query**
-- **React Hook Form**
-- **Zod**
+## 🏗️ Architecture
 
-### Tooling
-- **Docker** (MongoDB for local development)
-- **ESLint**
-- **Prettier** (optional)
+This project follows a layered architecture to ensure separation of concerns and maintainability:
 
----
+### Data Flow
+1. **Presentation Layer (Server Components):** Pages fetch data directly using tRPC "Server Callers" (`api.article.listPaginated`), ensuring type safety without standard HTTP overhead for initial renders.
+2. **Procedure Layer (tRPC Routers):** Defines API contracts and input validation using Zod. Located in `src/server/trpc/routers`.
+3. **Domain Layer (Repositories):** Encapsulates all database logic (`src/server/repositories`). This abstraction allows swapping the DB driver if needed and centralizes query logic.
+4. **Data Layer (MongoDB):** Direct connection via native driver for high performance.
 
-## 🧱 Architecture Overview
+### Key Decisions
+- **Server Components:** `page.tsx` is completely server-side rendered. Data is fetched on the server and passed to the UI.
+- **Repository Pattern:** Logic for pagination, soft deletes, and CRUD is isolated in `article.repository.ts`, keeping routers clean.
+- **Soft Deletes:** Articles are not physically removed. A `deletedAt` timestamp is set, and queries automatically filter these out.
+- **Manual Pagination:** Efficient server-side pagination using `skip` and `limit`, returning metadata (`totalPages`, `total`, etc.) for UI controls.
 
-This project follows a **fullstack monolith architecture** using Next.js:
+## 🛠️ Setup & Installation
 
-- **Frontend** and **Backend** live in the same codebase
-- Backend logic is implemented via **tRPC**, not REST
-- MongoDB access uses the **native driver**
-- Authentication is centralized via **BetterAuth**
-- Strong typing is enforced end-to-end using **TypeScript + Zod**
+1. **Clone the repository:**
+   ```bash
+   git clone <repo-url>
+   cd wortise-fullstack-challenge
+   ```
 
-### High-level structure
+2. **Environment Variables:**
+   Copy the example file and fill in your credentials:
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Update `.env` with:
+   ```env
+   # Database
+   MONGODB_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/dbname
 
-```txt
-src/
-├── app/            # Next.js App Router (UI + API routes)
-├── server/         # Backend logic (db, auth, trpc, schemas)
-├── utils/          # Shared utilities (tRPC client)
+   # BetterAuth
+   BETTER_AUTH_SECRET=your_generated_secret
+   BETTER_AUTH_URL=http://localhost:3000
+   ```
+
+3. **Install Dependencies:**
+   ```bash
+   npm install
+   ```
+
+4. **Run Development Server:**
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000) to view the app.
+
+## 📍 Available Routes
+
+| Route | Description |
+|-------|-------------|
+| `/` | Home page redirecting to articles or dashboard |
+| `/articles` | List of articles with search & pagination |
+| `/articles/[id]` | Article detail view |
+| `/articles/new` | Create a new article |
+| `/articles/[id]/edit` | Edit an existing article |
+| `/login` | User authentication |
+| `/register` | User registration |
+
+## ⚠️ Assumptions & Limitations
+
+- **Search:** Implemented via MongoDB text search or regex on specific fields (assumed case-insensitive match on title/content).
+- **Soft Deletes:** Deleted articles effectively disappear from the UI but remain in the DB for audit/recovery.
+- **Pagination:** Uses standard Page/Limit strategy.
