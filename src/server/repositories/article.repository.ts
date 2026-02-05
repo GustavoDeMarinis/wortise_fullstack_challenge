@@ -1,4 +1,4 @@
-import { ObjectId } from "mongodb";
+import { Filter, ObjectId } from "mongodb";
 import { getDb } from "../db";
 
 import {
@@ -7,6 +7,8 @@ import {
   Article,
 } from "@/server/schemas/article.schema";
 import { mapArticle } from "./article.mapper";
+import { PaginatedResult } from "../queries/pagination.types";
+import { normalizePagination } from "../queries/pagination.utils";
 
 const COLLECTION = "articles";
 
@@ -62,6 +64,36 @@ export async function listArticles(): Promise<Article[]> {
     .toArray();
 
   return docs.map(mapArticle);
+}
+
+export async function listArticlesPaginated(params?: {
+  page?: number;
+  pageSize?: number;
+}): Promise<PaginatedResult<Article>> {
+  const db = await getDb();
+  const { page, pageSize, skip, limit } = normalizePagination(params);
+
+  const filter = { deletedAt: null };
+
+  const [docs, total] = await Promise.all([
+    db
+      .collection(COLLECTION)
+      .find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .toArray(),
+
+    db.collection(COLLECTION).countDocuments(filter),
+  ]);
+
+  return {
+    items: docs.map(mapArticle),
+    page,
+    pageSize,
+    total,
+    totalPages: Math.ceil(total / pageSize),
+  };
 }
 
 export async function updateArticle(
