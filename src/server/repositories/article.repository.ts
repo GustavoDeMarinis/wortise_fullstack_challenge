@@ -1,4 +1,4 @@
-import { Filter, ObjectId } from "mongodb";
+import { ObjectId } from "mongodb";
 import { getDb } from "../db";
 
 import {
