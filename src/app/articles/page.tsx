@@ -1,5 +1,6 @@
 import { api } from "@/server/trpc/server";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 type Props = {
   searchParams: Promise<{
@@ -9,12 +10,21 @@ type Props = {
 };
 
 export default async function ArticlesPage({ searchParams }: Props) {
-  const page = Number((await searchParams).page ?? 1);
-  const { q } = await searchParams;
+  const params = await searchParams;
+
+  const rawPage = Number(params.page);
+  const page = Number.isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
+  const q = params.q;
 
   const result = q
     ? await api.article.searchPaginated({ q, page })
     : await api.article.listPaginated({ page });
+
+  if (page > result.totalPages && result.totalPages > 0) {
+    redirect(
+      `/articles?${q ? `q=${encodeURIComponent(q)}&` : ""}page=${result.totalPages}`
+    );
+  }
 
   const articles = result.items;
 
@@ -22,7 +32,13 @@ export default async function ArticlesPage({ searchParams }: Props) {
     <main className="max-w-2xl mx-auto p-4">
       {/* Header */}
       <h1 className="text-2xl font-bold mb-4 flex justify-between items-center">
-        Articles
+        <Link
+          href="/"
+          className="text-sm px-3 py-1 border rounded text-white hover:bg-gray-800 transition-colors"
+        >
+          ← Back to CMS
+        </Link>
+        <span>Articles</span>
 
         <Link
           href="/articles/new"
